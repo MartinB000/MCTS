@@ -7,7 +7,7 @@ depth = 5
 #strategy = 'mcts'
 
 if __name__ == '__main__':
-    game = Connect4(strategy1=strategy, strategy2=strategy, args1=depth, args2=depth)
+    game = Connect4(strategy1=strategy, strategy2="human")
     print(game)
     
     while game.winner is None and game.moves < 42:

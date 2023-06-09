@@ -1,9 +1,9 @@
 from player import Player
 
 class Connect4:
-  def __init__(self, strategy1='random', strategy2='random', *args1, **args2):
+  def __init__(self, strategy1='random', strategy2='random'):
     self.board = [[' ' for _ in range(7)] for _ in range(6)]
-    self.players = [Player('X',strategy1,args1), Player('O',strategy2,args2)]
+    self.players = [Player('X', strategy1), Player('O', strategy2)]
     self.moves = 0
     self.player = self.players[self.moves % 2]
     self.winner = None

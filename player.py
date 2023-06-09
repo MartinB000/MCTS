@@ -2,20 +2,22 @@ from copy import deepcopy
 import random
 
 class Player:
-  def __init__(self, sign, strategy='random', *args):
+  def __init__(self, sign, strategy='random', depth=5):
     self.sign = sign
     self.strategy = strategy
-    self.args = args
+    self.depth = depth
   
   def move(self, game):
     if self.strategy == 'random':
       self.random(game)
     elif self.strategy == 'minimax':
-      self.minimax(game, 4)
+      self.minimax(game, self.depth)
     elif self.strategy == 'alpha_beta':
       self.alpha_beta(game)
     elif self.strategy == 'mcts':
       self.mcts(game)
+    elif self.strategy == 'human':
+      self.human(game)
     else:
       raise Exception('Invalid strategy')
   
@@ -55,11 +57,11 @@ class Player:
     if zone.count(sign) == 4:
       return 100000
     elif zone.count(sign) == 3 and zone.count(' ') == 1:
-      return 50
+      return 1000
     elif zone.count(sign) == 2 and zone.count(' ') == 2:
-      return 5
+      return 50
     elif zone.count(sign) == 1 and zone.count(' ') == 3:
-      return 1  
+      return 1
     return 0
   
   ########################################
@@ -109,3 +111,14 @@ class Player:
   ########################################
   def mcts(self, game):
     pass
+  
+  ########################################
+  ############### Human ##################
+  ########################################
+  def human(self, game):
+    col = int(input('Enter a column: '))
+    try:
+      game.append_checker(col, self.sign)
+    except Exception as e:
+      print(e)
+      self.human(game)
