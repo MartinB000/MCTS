@@ -13,7 +13,7 @@ class Player:
     elif self.strategy == 'minimax':
       self.minimax(game, self.depth)
     elif self.strategy == 'alpha_beta':
-      self.alpha_beta(game)
+      self.alpha_beta(game, self.depth)
     elif self.strategy == 'mcts':
       self.mcts(game)
     elif self.strategy == 'human':
@@ -55,11 +55,11 @@ class Player:
         
   def _evaluate_zone(self, zone, sign):
     if zone.count(sign) == 4:
-      return 100000
-    elif zone.count(sign) == 3 and zone.count(' ') == 1:
       return 1000
-    elif zone.count(sign) == 2 and zone.count(' ') == 2:
+    elif zone.count(sign) == 3 and zone.count(' ') == 1:
       return 50
+    elif zone.count(sign) == 2 and zone.count(' ') == 2:
+      return 5
     elif zone.count(sign) == 1 and zone.count(' ') == 3:
       return 1
     return 0
@@ -68,7 +68,8 @@ class Player:
   ################ Minimax ###############
   ########################################
   def minimax(self, game, depth=5):
-    _, action = self.max_player(game, depth)
+    _eval, action = self.max_player(game, depth)
+    print("eval : ", _eval)
     game.append_checker(action, self.sign)
   
   def max_player(self, game, depth):
@@ -86,13 +87,14 @@ class Player:
     return max_eval, max_action
   
   def min_player(self, game, depth):
+    opp_sign = 'O' if self.sign == 'X' else 'X'
     if depth == 0 or game.is_over():
       return self.evaluate(game), None
     min_eval = float('inf')
     min_action = None
     for action in game.get_actions():
       temp_game = deepcopy(game)
-      temp_game.append_checker(action, self.sign)
+      temp_game.append_checker(action, opp_sign)
       eval, _ = self.max_player(temp_game, depth - 1)
       if eval < min_eval:
         min_eval = eval
@@ -103,8 +105,45 @@ class Player:
   ########################################
   ############## Alpha-Beta ##############
   ########################################
-  def alpha_beta(self, game):
-    pass
+  def alpha_beta(self, game, depth=5):
+    _, action = self.max_player_ab(game, depth, float('-inf'), float('inf'))
+    game.append_checker(action, self.sign)
+  
+  def max_player_ab(self, game, depth, alpha, beta):
+    if depth == 0 or game.is_over():
+      return self.evaluate(game), None
+    max_eval = float('-inf')
+    action = None
+    for a in game.get_actions():
+      temp_game = deepcopy(game)
+      temp_game.append_checker(a, self.sign)
+      eval, _ = self.min_player_ab(game, depth - 1, alpha, beta)
+      if eval > max_eval:
+        max_eval = eval
+        action = a
+      if max_eval >= beta:
+        return max_eval, action
+      alpha = max(alpha, max_eval)
+    return max_eval, action
+  
+  def min_player_ab(self, game, depth, alpha, beta):
+    opp_sign = 'O' if self.sign == 'X' else 'X'
+    if depth == 0 or game.is_over():
+      return self.evaluate(game), None
+    min_eval = float('inf')
+    action = None
+    for a in game.get_actions():
+      temp_game = deepcopy(game)
+      temp_game.append_checker(a, opp_sign)
+      eval, _ = self.max_player_ab(game, depth - 1, alpha, beta)
+      if eval < min_eval:
+        min_eval = eval
+        action = a
+      if min_eval <= alpha:
+        return min_eval, action
+      beta = min(beta, min_eval)
+    return min_eval, action
+    
   
   ########################################
   ################# MCTS #################
